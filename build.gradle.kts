@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.0"
+    kotlin("plugin.serialization") version "1.8.20"
+
     application
 }
 
@@ -15,6 +17,8 @@ dependencies {
 
     implementation ("org.http4k:http4k-core")
     implementation( "org.http4k:http4k-server-jetty:4.48.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1")
+
 
     testImplementation ("org.http4k:http4k-client-jetty:4.48.0.0")
     testImplementation( "org.jsoup:jsoup:1.12.1")
