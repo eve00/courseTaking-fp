@@ -5,6 +5,7 @@ import commands.CreateCourseTakingApplication
 import domain.Application
 import domain.CourseTakingHub
 import domain.User
+import kotlinx.serialization.json.Json
 import org.http4k.core.*
 import org.http4k.core.body.form
 import org.http4k.routing.bind
@@ -17,9 +18,21 @@ class CourseTaking(val hub: CourseTakingHub): HttpHandler {
 
     val httpHandler = routes(
         "/ping" bind Method.GET to { Response(Status.OK) },
+        "/application/{user}" bind Method.GET to ::getApplicationList,
         "/application/{user}" bind Method.POST to ::applyCourseTaking,
         "/application/{user}" bind Method.DELETE to ::cancelCourseTaking
     )
+
+    //Request -> User -> Result -> Response
+    private fun getApplicationList(request: Request): Response {
+        val user = request.extractUser()
+
+        return  request.extractUser()
+            ?.let { hub.getApplicationList(it) }
+            ?.let(::convertApplicationListToJson) //TODO("convert to Json")
+            ?.let(::toResponse)
+            ?: Response(Status.NOT_FOUND)
+    }
 
     //Request -> User,Application -> Result -> Response
     private fun applyCourseTaking(request: Request): Response {
@@ -40,6 +53,15 @@ class CourseTaking(val hub: CourseTakingHub): HttpHandler {
             ?.let { Response(Status.OK) }
             ?: Response(Status.BAD_REQUEST)
     }
+
+    data class JsonData(val raw:String)
+    fun convertApplicationListToJson(list: List<Application>): JsonData {
+        return JsonData("nothing")
+    }
+
+    fun toResponse(json: JsonData): Response =
+        Response(Status.OK).body(json.raw)
+
 
 
     private fun Request.extractUser(): User = path("user").orEmpty().let(::User)
