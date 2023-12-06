@@ -25,8 +25,6 @@ class CourseTaking(val hub: CourseTakingHub): HttpHandler {
 
     //Request -> User -> Result -> Response
     private fun getApplicationList(request: Request): Response {
-        val user = request.extractUser()
-
         return  request.extractUser()
             ?.let { hub.getApplicationList(it) }
             ?.let(::convertApplicationListToJson) //TODO("convert to Json")
