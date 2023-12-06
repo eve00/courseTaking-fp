@@ -12,7 +12,10 @@ import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
 
-
+/*
+* TODO:
+* 抽選、先着管理、登録、科目取得
+* */
 class CourseTaking(val hub: CourseTakingHub): HttpHandler {
     override fun invoke(request: Request): Response = httpHandler(request)
 
@@ -54,11 +57,12 @@ class CourseTaking(val hub: CourseTakingHub): HttpHandler {
 
     data class JsonData(val raw:String)
     fun convertApplicationListToJson(list: List<Application>): JsonData {
+        /*TODO: serialize list*/
         return JsonData("nothing")
     }
 
-    fun toResponse(json: JsonData): Response =
-        Response(Status.OK).body(json.raw)
+    fun toResponse(data: JsonData): Response =
+        Response(Status.OK).body(data.raw)
 
 
 
@@ -69,3 +73,4 @@ class CourseTaking(val hub: CourseTakingHub): HttpHandler {
         return Application(id, course)
     }
 }
+
