@@ -1,21 +1,15 @@
 package webServer
 
-import commands.CourseTakingApplicationCommandHandler
-import domain.CourseTakingApplicationHub
-import domain.CourseTakingHub
-import jdk.internal.org.jline.utils.Colors.s
-import org.http4k.server.Jetty
-import org.http4k.server.asServer
-import java.util.*
-
 fun main(args: Array<String>) {
 
+/*
     val commandHandler = CourseTakingApplicationCommandHandler()
     val hub = CourseTakingApplicationHub( commandHandler)
 
     CourseTaking(hub).asServer(Jetty(8080)).start()
 
     println("Server started at http://localhost:8080")
+*/
 
 }
 

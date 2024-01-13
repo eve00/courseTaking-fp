@@ -1,76 +1,177 @@
 package webServer
 
-import commands.CancelCourseTakingApplication
-import commands.CreateCourseTakingApplication
-import domain.Application
-import domain.CourseTakingHub
-import domain.User
-import kotlinx.serialization.json.Json
+import domain.courseTaking.*
+import domain.drawingAndRegistration.register
+import domain.entity.ApplicationId
+import domain.entity.Course
+import domain.entity.CourseId
+import domain.entity.StudentId
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import org.http4k.core.*
-import org.http4k.core.body.form
 import org.http4k.routing.bind
-import org.http4k.routing.path
 import org.http4k.routing.routes
+import java.util.UUID
 
 /*
 * TODO:
 * 抽選、先着管理、登録、科目取得
 * */
-class CourseTaking(val hub: CourseTakingHub): HttpHandler {
+class CourseTaking() : HttpHandler {
     override fun invoke(request: Request): Response = httpHandler(request)
 
     val httpHandler = routes(
-        "/ping" bind Method.GET to { Response(Status.OK) },
-        "/application/{user}" bind Method.GET to ::getApplicationList,
-        "/application/{user}" bind Method.POST to ::applyCourseTaking,
-        "/application/{user}" bind Method.DELETE to ::cancelCourseTaking
+        /*申請履歴*/
+        "/application/{studentId}" bind Method.GET to ::getApplications,
+        "/course" bind Method.GET to ::getCourses,
+        /*先着申請可能な科目*/
+        "/course" bind Method.GET to ::getCoursesCanTake,
+        /*申請*/
+        "｛format｝/application/{studentId}/{courseId}" bind Method.POST to ::applyCourseTaking,
+        "/application/{studentId}/{courseTakingApplicationId}" bind Method.DELETE to ::cancelCourseTaking,
+        /*抽選・登録*/
+        "/course/{courseId}" bind Method.POST to ::drawAndRegisterCourseMembers,
+        "/course/{courseId}" bind Method.POST to ::registerCourseMembers,
     )
-
-    //Request -> User -> Result -> Response
-    private fun getApplicationList(request: Request): Response {
-        return  request.extractUser()
-            ?.let { hub.getApplicationList(it) }
-            ?.let(::convertApplicationListToJson) //TODO("convert to Json")
-            ?.let(::toResponse)
-            ?: Response(Status.NOT_FOUND)
-    }
-
-    //Request -> User,Application -> Result -> Response
+    /*
+    * {studentId, course}
+    * */
     private fun applyCourseTaking(request: Request): Response {
-        val user = request.extractUser()
-        return  request.extractApplication()
-            ?.let { CreateCourseTakingApplication(user, it) }
-            ?.let(hub::handle)//Result噛ませたい
-            ?.let { Response(Status.OK) }
-            ?: Response(Status.BAD_REQUEST)
+        /*studentId, courseを取得*/
+        val applicationId = ApplicationId(UUID.randomUUID().toString())
+        val studentId = request.extractStudentId() ?: return Response(Status.BAD_REQUEST)
+        val course = request.extractCourse() ?: return Response(Status.BAD_REQUEST)
+
+        val result = CoroutineScope(Dispatchers.IO).async {
+            runCatching {
+                createApplication(applicationId, studentId, course)
+            }
+        }
+
+        /*responseを返す*/
+        return if (result.getCompleted().isSuccess) {
+            Response(Status.OK)
+        } else {
+            Response(Status.BAD_REQUEST)
+        }
     }
 
-    //Request -> User,Application -> Result -> Response
+    /*
+    * {applicationId}
+    * */
     private fun cancelCourseTaking(request: Request): Response {
-        val user = request.extractUser()
-        return  request.extractApplication()
-            ?.let { CancelCourseTakingApplication(user, it) }
-            ?.let(hub::handle)//Result噛ませたい
-            ?.let { Response(Status.OK) }
-            ?: Response(Status.BAD_REQUEST)
+        /*requestからapplicationIdを取得*/
+        val applicationId = request.extractApplicationId() ?: return Response(Status.BAD_REQUEST)
+
+        val result = CoroutineScope(Dispatchers.IO).async {
+            runCatching {
+                deleteApplication(applicationId)
+            }
+        }
+
+        /*responseを返す*/
+        return if (result.getCompleted().isSuccess) {
+            Response(Status.OK)
+        } else {
+            Response(Status.BAD_REQUEST)
+        }
     }
 
-    data class JsonData(val raw:String)
-    fun convertApplicationListToJson(list: List<Application>): JsonData {
-        /*TODO: serialize list*/
-        return JsonData("nothing")
+    private fun drawAndRegisterCourseMembers(request: Request): Response {
+        /*requestからcourseIdを取得*/
+        val courseId = request.extractCourse() ?: return Response(Status.BAD_REQUEST)
+
+        val result = CoroutineScope(Dispatchers.IO).async {
+            runCatching {
+
+            }
+        }
+
+        /*結果を返す*/
+        return if (result.getCompleted().isSuccess) {
+            Response(Status.OK)
+        } else {
+            Response(Status.BAD_REQUEST)
+        }
     }
 
-    fun toResponse(data: JsonData): Response =
-        Response(Status.OK).body(data.raw)
+    private fun registerCourseMembers(request: Request): Response {
+        /*requestからcourseIdを取得*/
+        val courseId = request.extractCourseId() ?: return Response(Status.BAD_REQUEST)
 
+        val result = CoroutineScope(Dispatchers.IO).async {
+            runCatching {
+                register(courseId)
+            }
+        }
 
-
-    private fun Request.extractUser(): User = path("user").orEmpty().let(::User)
-    private fun Request.extractApplication(): Application? {
-        val id = form("applicationId") ?:return null
-        val course = form("course") ?: return null
-        return Application(id, course)
+        /*結果を返す*/
+        return if (result.getCompleted().isSuccess) {
+            Response(Status.OK)
+        } else {
+            Response(Status.BAD_REQUEST)
+        }
     }
+
+
+    private fun getCourses(request: Request): Response {
+        val result = CoroutineScope(Dispatchers.IO).async {
+            runCatching {
+                getCourses()
+            }
+        }
+
+        /*responseを返す*/
+        return if (result.getCompleted().isSuccess) {
+            Response(Status.OK)
+        } else {
+            Response(Status.NOT_FOUND)
+        }
+    }
+
+    private fun getCoursesCanTake(request: Request): Response {
+        val result = CoroutineScope(Dispatchers.IO).async {
+            runCatching {
+                getCoursesCanTake()
+            }
+        }
+
+        /*responseを返す*/
+        return if (result.getCompleted().isSuccess) {
+            Response(Status.OK)
+        } else {
+            Response(Status.NOT_FOUND)
+        }
+    }
+
+    /*
+* {studentId}
+* */
+    private fun getApplications(request: Request): Response {
+        /*requestからstudentIdを取得*/
+        val studentId = request.extractStudentId() ?: return Response(Status.BAD_REQUEST)
+
+        val result = CoroutineScope(Dispatchers.IO).async {
+            runCatching {
+                getApplications(studentId)
+            }
+        }
+
+        /*responseを返す*/
+        return if (result.getCompleted().isSuccess) {
+            Response(Status.OK)
+        } else {
+            Response(Status.NOT_FOUND)
+        }
+    }
+
+
+    fun Request.extractApplicationId(): ApplicationId? = ApplicationId(String())
+    fun Request.extractStudentId(): StudentId? = StudentId(String())
+    fun Request.extractCourseId(): CourseId? = CourseId(String())
+
+    fun Request.extractCourse(): Course? = Course()
+
 }
 
