@@ -1,5 +1,7 @@
 package domain.courseTaking
 
+import domain.courseTaking.entity.CourseTakingSchedule
+import domain.courseTaking.entity.toCourseTakingSchedule
 import domain.entity.*
 import org.http4k.core.Request
 import org.jetbrains.annotations.Async
@@ -10,16 +12,16 @@ import org.jetbrains.annotations.Async
 
 suspend fun createApplication(
     applicationId: ApplicationId,
-    studentId: StudentId,
+    student: Student,
     course: Course
 ): Result<Application.OfUnconfirmed> {
-    val unprocessedApplication = Application.OfUnprocessed(UnprocessedApplication(applicationId, studentId, course))
+    val unprocessedApplication = Application.OfUnprocessed(UnprocessedApplication(applicationId,student , course))
     val applicationList =
-        loadAppllicationListFromDb(unprocessedApplication.studentId).getOrElse { return Result.failure(it) }
-            .toApplicationList(unprocessedApplication.studentId)
-    val updateApplicationListResult = updateApplicationList(applicationList, unprocessedApplication)
+        loadAppllicationListFromDb(unprocessedApplication.student.id).getOrElse { return Result.failure(it) }
+            .toCourseTakingSchedule(unprocessedApplication.student)
+    val updateCourseTakingScheduleResult = updateCourseTakingSchedule(applicationList, unprocessedApplication)
     val unconfirmedApplication = unprocessedApplication.toUnconfirmedApplication()
-    updateApplicationListResult
+    updateCourseTakingScheduleResult
         .onSuccess {
             save(unconfirmedApplication).onFailure { return Result.failure(it) }
         }
@@ -34,29 +36,16 @@ suspend fun createApplication(
 * domain
 * */
 
-fun List<Application>.toApplicationList(studentId: StudentId) =
-    ApplicationList(studentId, this)
-
-fun updateApplicationList(
-    applicationList: ApplicationList,
+fun updateCourseTakingSchedule(
+    courseTakingSchedule: CourseTakingSchedule,
     application: Application.OfUnprocessed
-): Result<UpdatedApplicationList> {
-    return if (checkTotalCredits(applicationList)) {
-        Result.success(
-            UpdatedApplicationList(
-                id = applicationList.id,
-                applications = applicationList.applications.plus(listOf(application))
-            )
-        )
-    } else {
-        Result.failure(exception = Exception("取得可能な単位数を超過しています。"))
+): Result<CourseTakingSchedule> {
+    val updatedCourseTakingSchedule = courseTakingSchedule.addApplication(application)
+    return when(updatedCourseTakingSchedule){
+        is CourseTakingSchedule.OfVacant -> Result.success(updatedCourseTakingSchedule)
+        is CourseTakingSchedule.OfFull -> Result.success(updatedCourseTakingSchedule)
+        is CourseTakingSchedule.OfInvalid -> Result.failure(Exception("取得可能な単位数を超過しています。"))
     }
-}
-
-fun checkTotalCredits(applicationList: ApplicationList): Boolean {
-    return applicationList.applications.map { application: Application ->
-        application.course.credit
-    }.reduce { acc, credit -> acc + credit } <= 26
 }
 
 /*
@@ -83,13 +72,13 @@ fun findByStudentId(studentId: StudentId): List<Application>? {
     return listOf(
         ApplicationFromDb(
             applicationId = ApplicationId(String()),
-            studentId = StudentId(String()),
+            student = Student(),
             course = Course(),
             state = ApplicationState.UNCONFIRMED
         ),
         ApplicationFromDb(
             applicationId = ApplicationId(String()),
-            studentId = StudentId(String()),
+            student = Student(),
             course = Course(),
             state = ApplicationState.UNCONFIRMED
         )
@@ -101,7 +90,7 @@ fun findByStudentId(studentId: StudentId): List<Application>? {
 * */
 data class ApplicationFromDb(
     val applicationId: ApplicationId,
-    val studentId: StudentId,
+    val student: Student,
     val course: Course,
     val state: ApplicationState
 )
@@ -115,7 +104,7 @@ fun ApplicationFromDb.toApplication(): Application {
         ApplicationState.UNCONFIRMED -> Application.OfUnconfirmed(
             UnconfirmedApplication(
                 this.applicationId,
-                this.studentId,
+                this.student,
                 this.course
             )
         )
@@ -123,7 +112,7 @@ fun ApplicationFromDb.toApplication(): Application {
         ApplicationState.CONFIRMED -> Application.OfConfirmed(
             ConfirmedApplication(
                 this.applicationId,
-                this.studentId,
+                this.student,
                 this.course
             )
         )
@@ -131,7 +120,7 @@ fun ApplicationFromDb.toApplication(): Application {
         ApplicationState.INVALIDATED -> Application.OfInvalidated(
             InvalidatedApplication(
                 this.applicationId,
-                this.studentId,
+                this.student,
                 this.course
             )
         )
