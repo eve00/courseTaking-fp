@@ -1,16 +1,21 @@
 package domain.courseManagement
 
+import domain.course.data.loadCourseById
+import domain.courseManagement.data.loadCourseMembers
+import domain.courseManagement.data.saveCourseMembers
 import domain.courseManagement.entity.toApplicationList
 import domain.courseManagement.entity.toCourseMemberList
-import domain.entity.Application
-import domain.entity.CourseId
+import domain.courseTaking.data.loadApplicationsByCourseId
+import domain.courseTaking.data.saveApplicationInDatabase
+import domain.courseTaking.entity.Application
+import domain.valueObject.CourseId
 
 fun register(courseId: CourseId):Result<Unit>{
     val course = loadCourseById(courseId)
     //load
     val applicationList = loadApplicationsByCourseId(courseId).getOrElse { return Result.failure(it) }
         .toApplicationList(course)
-    val courseMemberList = loadStudentsByCourseId(courseId).getOrElse { return Result.failure(it) }
+    val courseMemberList = loadCourseMembers(courseId).getOrElse { return Result.failure(it) }
         .toCourseMemberList(course)
 
     //Applicationを更新 (Confirm

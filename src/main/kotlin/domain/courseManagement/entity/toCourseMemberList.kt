@@ -1,8 +1,8 @@
 package domain.courseManagement.entity
 
 import domain.courseManagement.entity.CourseMemberList.*
-import domain.entity.Course
-import domain.entity.Student
+import domain.valueObject.Course
+import domain.valueObject.Student
 
 fun List<Student>.toCourseMemberList(course: Course): CourseMemberList {
     return when {

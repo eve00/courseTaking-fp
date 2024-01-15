@@ -1,6 +1,7 @@
 package domain.courseManagement.entity
 
-import domain.entity.*
+import domain.courseTaking.entity.Application
+import domain.valueObject.*
 
 sealed class ApplicationList {
     data class OfVacant(val value: VacantApplicationList) : ApplicationList()

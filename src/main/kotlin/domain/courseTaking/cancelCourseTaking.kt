@@ -1,17 +1,13 @@
 package domain.courseTaking
 
+import domain.courseTaking.data.deleteApplicationfromDB
+import domain.courseTaking.data.loadApplicationById
+import domain.courseTaking.data.loadAppllicationsByStudentId
+import domain.courseTaking.entity.ApplicationId
 import domain.courseTaking.entity.toCourseTakingSchedule
-import domain.entity.*
-import org.http4k.core.HttpHandler
-import org.http4k.core.Request
-import org.http4k.core.Status
-import java.nio.file.Files.delete
 
-/*
-* workflow
-* */
 
-suspend fun deleteMyApplication(applicationId:ApplicationId): Result<Unit> {
+suspend fun deleteMyApplication(applicationId: ApplicationId): Result<Unit> {
     val application = loadApplicationById(applicationId)
     //courseTakingScheduleをload
     val courseTakingSchedule =
@@ -26,19 +22,3 @@ suspend fun deleteMyApplication(applicationId:ApplicationId): Result<Unit> {
     return Result.success(Unit)
 }
 
-
-/*
-* database
-* */
-suspend fun deleteApplicationfromDB(applicationId: ApplicationId):Result<Unit>{
-    return Result.success(Unit)
-}
-
-suspend fun loadApplicationById(applicationId: ApplicationId):Application{
-    return ApplicationData(
-        applicationId = ApplicationId(String()),
-        student = Student(),
-        course = Course(),
-        state = ApplicationState.UNCONFIRMED
-    ).toApplication()
-}

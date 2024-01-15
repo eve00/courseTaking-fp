@@ -1,8 +1,7 @@
 package domain.courseTaking.entity
 
-import domain.entity.Application
-import domain.entity.DowAndPeriod
-import domain.entity.Student
+import domain.valueObject.DowAndPeriod
+import domain.valueObject.Student
 
 
 sealed class CourseTakingSchedule {

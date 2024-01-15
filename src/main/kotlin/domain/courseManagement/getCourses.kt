@@ -1,6 +1,6 @@
-package domain.courseTaking
+package domain.courseManagement
 
-import domain.entity.Course
+import domain.valueObject.Course
 
 fun getCourses():Result<List<Course>>{
     return Result.success(listOf(Course()))

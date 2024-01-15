@@ -3,10 +3,9 @@ package webServer
 import domain.courseManagement.drawAndRegister
 import domain.courseTaking.*
 import domain.courseManagement.register
-import domain.entity.ApplicationId
-import domain.entity.Course
-import domain.entity.CourseId
-import domain.entity.StudentId
+import domain.courseTaking.entity.ApplicationId
+import domain.valueObject.CourseId
+import domain.valueObject.StudentId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -117,7 +116,7 @@ class CourseTaking() : HttpHandler {
     private fun getCourses(request: Request): Response {
         val result = CoroutineScope(Dispatchers.IO).async {
             runCatching {
-                getCourses()
+                domain.courseManagement.getCourses()
             }
         }
 
@@ -132,7 +131,7 @@ class CourseTaking() : HttpHandler {
     private fun getCoursesCanTake(request: Request): Response {
         val result = CoroutineScope(Dispatchers.IO).async {
             runCatching {
-                getCoursesCanTake()
+                domain.courseManagement.getCoursesCanTake()
             }
         }
 
@@ -153,7 +152,7 @@ class CourseTaking() : HttpHandler {
 
         val result = CoroutineScope(Dispatchers.IO).async {
             runCatching {
-                getApplications(studentId)
+                getMyApplications(studentId)
             }
         }
 

@@ -1,10 +1,8 @@
 package domain.courseTaking
 
-import domain.entity.Application
-import domain.entity.ApplicationId
-import domain.entity.StudentId
-import domain.entity.UnconfirmedApplication
+import domain.courseTaking.entity.Application
+import domain.valueObject.StudentId
 
-fun getApplications(studentId: StudentId): Result<List<Application>> {
+fun getMyApplications(studentId: StudentId): Result<List<Application>> {
     return Result.success(emptyList())
 }

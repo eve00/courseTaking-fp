@@ -1,6 +1,6 @@
-package domain.entity
+package domain.valueObject
 
-import domain.entity.common.Identifier
+import domain.valueObject.common.Identifier
 
 typealias CourseId = Identifier<Course, String>
 

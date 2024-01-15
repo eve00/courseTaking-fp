@@ -1,4 +1,4 @@
-package domain.entity.common
+package domain.valueObject.common
 
 enum class Faculty {
     ENGINEERING, ECONOMICS

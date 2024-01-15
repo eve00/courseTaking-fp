@@ -1,7 +1,7 @@
-package domain.entity
+package domain.valueObject
 
-import domain.entity.common.Faculty
-import domain.entity.common.Identifier
+import domain.valueObject.common.Faculty
+import domain.valueObject.common.Identifier
 
 typealias StudentId = Identifier<Student, String>
 

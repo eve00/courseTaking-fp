@@ -1,22 +1,21 @@
 package domain.courseManagement
 
+import domain.course.data.loadCourseById
+import domain.courseManagement.data.loadCourseMembers
+import domain.courseManagement.data.saveCourseMembers
 import domain.courseManagement.entity.toApplicationList
 import domain.courseManagement.entity.toCourseMemberList
-import domain.courseTaking.ApplicationData
-import domain.courseTaking.ApplicationState
-import domain.courseTaking.toApplication
-import domain.entity.*
-
-/*
-* workflow
-* */
+import domain.courseTaking.data.loadApplicationsByCourseId
+import domain.courseTaking.data.saveApplicationInDatabase
+import domain.courseTaking.entity.Application
+import domain.valueObject.CourseId
 
 suspend fun drawAndRegister(courseId: CourseId): Result<Unit> {
     //load
     val course = loadCourseById(courseId)
     val applicationList = loadApplicationsByCourseId(courseId).getOrElse { return Result.failure(it) }
         .toApplicationList(course)
-    val courseMemberList = loadStudentsByCourseId(courseId).getOrElse { return Result.failure(it) }
+    val courseMemberList = loadCourseMembers(courseId).getOrElse { return Result.failure(it) }
         .toCourseMemberList(course)
 
     //drawを実行する
@@ -50,35 +49,3 @@ private fun drawApplication(applications: List<Application>, capacity: Int): Lis
     return drawedApplication + invalidatedApplications
 }
 
-
-fun loadApplicationsByCourseId(courseid: CourseId): Result<List<Application>> {
-    return Result.success(listOf(
-        ApplicationData(
-            applicationId = ApplicationId(String()),
-            student = Student(),
-            course = Course(),
-            state = ApplicationState.UNCONFIRMED
-        ),
-        ApplicationData(
-            applicationId = ApplicationId(String()),
-            student = Student(),
-            course = Course(),
-            state = ApplicationState.UNCONFIRMED
-        )
-    ).map { it.toApplication() })
-}
-
-fun loadStudentsByCourseId(courseid: CourseId): Result<List<Student>> {
-    return Result.success(
-        listOf(Student(), Student())
-    )
-}
-
-fun saveApplicationInDatabase(application:Application): Result<Unit> {
-    return Result.success(Unit)
-}
-fun saveCourseMembers(members:List<Student>): Result<Unit> {
-    return Result.success(Unit)
-}
-
-fun loadCourseById(courseId: CourseId): Course = Course()

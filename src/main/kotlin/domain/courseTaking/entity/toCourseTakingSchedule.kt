@@ -3,9 +3,8 @@ package domain.courseTaking.entity
 import domain.courseTaking.entity.CourseTakingSchedule.OfVacant
 import domain.courseTaking.entity.CourseTakingSchedule.OfFull
 import domain.courseTaking.entity.CourseTakingSchedule.OfInvalid
-import domain.entity.Application
-import domain.entity.Application.OfInvalidated
-import domain.entity.Student
+import domain.courseTaking.entity.Application.OfInvalidated
+import domain.valueObject.Student
 
 /*
 * factory

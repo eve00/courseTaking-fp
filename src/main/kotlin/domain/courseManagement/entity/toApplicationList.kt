@@ -1,7 +1,7 @@
 package domain.courseManagement.entity
 
-import domain.entity.Application
-import domain.entity.Course
+import domain.courseTaking.entity.Application
+import domain.valueObject.Course
 
 /*
 * factory
