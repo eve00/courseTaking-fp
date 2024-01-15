@@ -1,52 +1,52 @@
 package domain.courseTaking
 
+import domain.courseManagement.loadCourseById
 import domain.courseTaking.entity.CourseTakingSchedule
 import domain.courseTaking.entity.toCourseTakingSchedule
 import domain.entity.*
-import org.http4k.core.Request
-import org.jetbrains.annotations.Async
+import java.util.UUID
 
 /*
 * workflow
 * */
 
 suspend fun createApplication(
-    applicationId: ApplicationId,
-    student: Student,
-    course: Course
-): Result<Application.OfUnconfirmed> {
-    val unprocessedApplication = Application.OfUnprocessed(UnprocessedApplication(applicationId,student , course))
-    val applicationList =
-        loadAppllicationListFromDb(unprocessedApplication.student.id).getOrElse { return Result.failure(it) }
-            .toCourseTakingSchedule(unprocessedApplication.student)
-    val updateCourseTakingScheduleResult = updateCourseTakingSchedule(applicationList, unprocessedApplication)
-    val unconfirmedApplication = unprocessedApplication.toUnconfirmedApplication()
-    updateCourseTakingScheduleResult
-        .onSuccess {
-            save(unconfirmedApplication).onFailure { return Result.failure(it) }
-        }
-        .onFailure {
-            return Result.failure(it)
-        }
+    studentId: StudentId,
+    courseId: CourseId
+): Result<Unit> {
 
-    return Result.success(unconfirmedApplication)
+    //load
+    val student = loadStudentById(studentId)
+    val course = loadCourseById(courseId)
+    val courseTakingSchedule =
+        loadAppllicationsByStudentId(studentId).getOrElse { return Result.failure(it) }
+            .toCourseTakingSchedule(student)
+
+    //Applicationの作成
+    val newApplication = Application.OfUnconfirmed(
+        UnconfirmedApplication(
+            ApplicationId(UUID.randomUUID().toString()),
+            student,
+            course
+        )
+    )
+    //CourseTakingScheduleの更新（add
+    val updatedCourseTakingSchedule = courseTakingSchedule.addApplication(newApplication)
+    when (updatedCourseTakingSchedule) {
+        is CourseTakingSchedule.OfVacant -> {}
+        is CourseTakingSchedule.OfFull -> {}
+        is CourseTakingSchedule.OfInvalid -> return Result.failure(Exception("取得可能な単位数を超過しています。"))
+    }
+
+    //save
+    saveApplicationInDatabase(newApplication)
+    return Result.success(Unit)
 }
 
 /*
 * domain
 * */
 
-fun updateCourseTakingSchedule(
-    courseTakingSchedule: CourseTakingSchedule,
-    application: Application.OfUnprocessed
-): Result<CourseTakingSchedule> {
-    val updatedCourseTakingSchedule = courseTakingSchedule.addApplication(application)
-    return when(updatedCourseTakingSchedule){
-        is CourseTakingSchedule.OfVacant -> Result.success(updatedCourseTakingSchedule)
-        is CourseTakingSchedule.OfFull -> Result.success(updatedCourseTakingSchedule)
-        is CourseTakingSchedule.OfInvalid -> Result.failure(Exception("取得可能な単位数を超過しています。"))
-    }
-}
 
 /*
 * DTO
@@ -57,38 +57,34 @@ fun updateCourseTakingSchedule(
 * database
 * */
 
-suspend fun loadAppllicationListFromDb(studentId: StudentId): Result<List<Application>> {
-    val applications = findByStudentId(studentId) ?: listOf()
-
-    return Result.success(applications)
-}
-
-suspend fun save(application: Application): Result<Unit> {
-    return Result.success(Unit)
-}
-
-
-fun findByStudentId(studentId: StudentId): List<Application>? {
-    return listOf(
-        ApplicationFromDb(
+suspend fun loadAppllicationsByStudentId(studentId: StudentId): Result<List<Application>> {
+    return Result.success(listOf(
+        ApplicationData(
             applicationId = ApplicationId(String()),
             student = Student(),
             course = Course(),
             state = ApplicationState.UNCONFIRMED
         ),
-        ApplicationFromDb(
+        ApplicationData(
             applicationId = ApplicationId(String()),
             student = Student(),
             course = Course(),
             state = ApplicationState.UNCONFIRMED
         )
-    ).map { it.toApplication() }
+    ).map { it.toApplication() })
 }
+
+suspend fun loadStudentById(studentId: StudentId): Student = Student()
+
+suspend fun saveApplicationInDatabase(application: Application): Result<Unit> {
+    return Result.success(Unit)
+}
+
 
 /*
 * model
 * */
-data class ApplicationFromDb(
+data class ApplicationData(
     val applicationId: ApplicationId,
     val student: Student,
     val course: Course,
@@ -99,7 +95,7 @@ enum class ApplicationState {
     UNCONFIRMED, CONFIRMED, INVALIDATED
 }
 
-fun ApplicationFromDb.toApplication(): Application {
+fun ApplicationData.toApplication(): Application {
     return when (this.state) {
         ApplicationState.UNCONFIRMED -> Application.OfUnconfirmed(
             UnconfirmedApplication(

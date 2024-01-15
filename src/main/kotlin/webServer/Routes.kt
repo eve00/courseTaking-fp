@@ -1,7 +1,8 @@
 package webServer
 
+import domain.courseManagement.drawAndRegister
 import domain.courseTaking.*
-import domain.drawingAndRegistration.register
+import domain.courseManagement.register
 import domain.entity.ApplicationId
 import domain.entity.Course
 import domain.entity.CourseId
@@ -12,7 +13,6 @@ import kotlinx.coroutines.async
 import org.http4k.core.*
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import java.util.UUID
 
 /*
 * TODO:
@@ -39,13 +39,12 @@ class CourseTaking() : HttpHandler {
     * */
     private fun applyCourseTaking(request: Request): Response {
         /*studentId, courseを取得*/
-        val applicationId = ApplicationId(UUID.randomUUID().toString())
         val studentId = request.extractStudentId() ?: return Response(Status.BAD_REQUEST)
-        val course = request.extractCourse() ?: return Response(Status.BAD_REQUEST)
+        val courseId = request.extractCourseId() ?: return Response(Status.BAD_REQUEST)
 
         val result = CoroutineScope(Dispatchers.IO).async {
             runCatching {
-                createApplication(applicationId, studentId, course)
+                createApplication(studentId,courseId)
             }
         }
 
@@ -66,7 +65,7 @@ class CourseTaking() : HttpHandler {
 
         val result = CoroutineScope(Dispatchers.IO).async {
             runCatching {
-                deleteApplication(applicationId)
+                deleteMyApplication(applicationId)
             }
         }
 
@@ -80,11 +79,11 @@ class CourseTaking() : HttpHandler {
 
     private fun drawAndRegisterCourseMembers(request: Request): Response {
         /*requestからcourseIdを取得*/
-        val courseId = request.extractCourse() ?: return Response(Status.BAD_REQUEST)
+        val courseId = request.extractCourseId() ?: return Response(Status.BAD_REQUEST)
 
         val result = CoroutineScope(Dispatchers.IO).async {
             runCatching {
-
+                drawAndRegister(courseId)
             }
         }
 
@@ -171,7 +170,6 @@ class CourseTaking() : HttpHandler {
     fun Request.extractStudentId(): StudentId? = StudentId(String())
     fun Request.extractCourseId(): CourseId? = CourseId(String())
 
-    fun Request.extractCourse(): Course? = Course()
 
 }
 

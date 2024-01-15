@@ -10,8 +10,8 @@ data class Course(
     val name: String = String(),
     val semester: Semester = Semester.FIRST,
     val dowAndPeriod: DowAndPeriod = DowAndPeriod(Dow.MONDAY, Period.FIRST),
-    val max: Int = 0,
-    val credit: Int = 0
+    val capacity: Int = 100,
+    val credit: Int = 1
 )
 
 data class DowAndPeriod(

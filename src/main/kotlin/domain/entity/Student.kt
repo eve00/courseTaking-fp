@@ -8,10 +8,11 @@ typealias StudentId = Identifier<Student, String>
 
 
 data class Student(
-    private val id: StudentId,
-    private val name: String,
-    private val grade: Int,
-    private val faculty: Faculty,
+    val id: StudentId = StudentId(String()),
+    val name: String = String(),
+    val grade: Int = 0,
+    val faculty: Faculty = Faculty.ECONOMICS,
+    val maxCredit: Int = 26
 ) {
 
     fun getId(): StudentId {

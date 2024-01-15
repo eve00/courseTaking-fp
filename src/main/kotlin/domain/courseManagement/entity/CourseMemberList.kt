@@ -1,4 +1,4 @@
-package domain.drawingAndRegistration.entity
+package domain.courseManagement.entity
 
 import domain.entity.Course
 import domain.entity.Student

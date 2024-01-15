@@ -1,27 +1,17 @@
 package domain.entity
 
 import domain.entity.common.Identifier
+import sun.jvm.hotspot.oops.CellTypeState.value
 
 typealias ApplicationId = Identifier<Application, String>
 
 sealed class Application {
-    data class OfUnprocessed(val value: UnprocessedApplication) : Application() {
-        fun toUnconfirmedApplication(): OfUnconfirmed {
-            return OfUnconfirmed(UnconfirmedApplication(value.applicationId, value.student, value.course))
-        }
-    }
+    data class OfUnprocessed(val value: UnprocessedApplication) : Application()
 
-    data class OfUnconfirmed(val value: UnconfirmedApplication) : Application() {
-        fun toConfirmedApplication(): OfConfirmed {
-            return OfConfirmed(ConfirmedApplication(value.applicationId, value.student, value.course))
-        }
-
-        fun toInvalidatedApplication(): OfInvalidated {
-            return OfInvalidated(InvalidatedApplication(value.applicationId, value.student, value.course))
-        }
-    }
-
+    data class OfUnconfirmed(val value: UnconfirmedApplication) : Application()
     data class OfConfirmed(val value: ConfirmedApplication) : Application()
+
+    /*「落選したこと」を永続化するため*/
     data class OfInvalidated(val value: InvalidatedApplication) : Application()
 
     val applicationId: ApplicationId
@@ -52,6 +42,32 @@ sealed class Application {
         is Application.OfConfirmed -> this@Application.value
         is Application.OfInvalidated -> this@Application.value
     }
+    /*state transition*/
+    fun toUnconfirmedApplication():Application = when (this@Application) {
+        is Application.OfUnprocessed -> toUnconfirmedApplication()
+        is Application.OfUnconfirmed -> throw IllegalStateException()
+        is Application.OfConfirmed -> throw IllegalStateException()
+        is Application.OfInvalidated -> throw IllegalStateException()
+    }
+    fun toConfirmedApplication():Application = when (this@Application) {
+        is Application.OfUnprocessed -> throw IllegalStateException()
+        is Application.OfUnconfirmed -> toConfirmedApplication()
+        is Application.OfConfirmed -> throw IllegalStateException()
+        is Application.OfInvalidated -> throw IllegalStateException()
+    }
+    fun toInvalidatedApplication():Application = when (this@Application) {
+        is Application.OfUnprocessed -> throw IllegalStateException()
+        is Application.OfUnconfirmed -> toInvalidatedApplication()
+        is Application.OfConfirmed -> throw IllegalStateException()
+        is Application.OfInvalidated -> throw IllegalStateException()
+    }
+
+    /*implement operation*/
+    private fun toUnconfirmed():OfUnconfirmed = OfUnconfirmed(UnconfirmedApplication(this.applicationId, this.student, this.course))
+    private fun toConfirmed(): OfConfirmed = OfConfirmed(ConfirmedApplication(this.applicationId, this.student, this.course))
+    private fun toInvalidated(): OfInvalidated = OfInvalidated(InvalidatedApplication(this.applicationId, this.student, this.course))
+
+
 }
 
 data class UnprocessedApplication(

@@ -4,6 +4,7 @@ import domain.entity.Application
 import domain.entity.DowAndPeriod
 import domain.entity.Student
 
+
 sealed class CourseTakingSchedule {
     data class OfVacant(val value: VacantCourseTakingSchedule) : CourseTakingSchedule()
     data class OfFull(val value: FullCourseTakingSchedule) : CourseTakingSchedule()
@@ -47,7 +48,7 @@ sealed class CourseTakingSchedule {
     private fun add(application: Application): CourseTakingSchedule {
         val updatedApplications = this.applications + mapOf(application.course.dowAndPeriod to application)
         val updatedTotalCredit = updatedApplications.map { it.value.course.credit }
-            .reduce { acc, credit -> acc + credit } + application.course.credit
+            .reduce { acc, credit -> acc + credit }
         return when {
             updatedTotalCredit < student.maxCredit -> OfVacant(VacantCourseTakingSchedule(student, updatedApplications))
             updatedTotalCredit == student.maxCredit -> OfFull(FullCourseTakingSchedule(student, updatedApplications))
