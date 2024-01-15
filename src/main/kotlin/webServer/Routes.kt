@@ -1,6 +1,6 @@
 package webServer
 
-import domain.courseManagement.drawAndRegister
+import courseManagement.domain.drawAndRegister
 import domain.courseTaking.*
 import domain.courseManagement.register
 import domain.courseTaking.entity.ApplicationId
