@@ -1,13 +1,13 @@
 package courseTaking.domain
 
-import course.data.loadCourseById
-import courseTaking.domain.valueObject.StudentId
-import domain.courseTaking.data.loadAppllicationsByStudentId
-import domain.courseTaking.data.saveApplicationInDatabase
-import domain.courseTaking.entity.*
-import student.data.loadStudentById
-import domain.valueObject.CourseId
-import java.util.*
+import courseTaking.data.loadCourseById
+import courseTaking.data.loadAppllicationsByStudentId
+import courseTaking.data.saveApplicationInDatabase
+import courseTaking.domain.entity.*
+import valueObject.CourseId
+import valueObject.Student
+import valueObject.StudentId
+import java.util.UUID
 
 suspend fun createApplication(
     studentId: StudentId,
@@ -41,3 +41,5 @@ suspend fun createApplication(
     saveApplicationInDatabase(newApplication)
     return Result.success(Unit)
 }
+
+suspend fun loadStudentById(studentId: StudentId): Student = Student()

@@ -1,12 +1,13 @@
 package courseManagement.domain
 
-import course.data.loadCourseById
-import domain.courseManagement.entity.toApplicationList
-import domain.courseManagement.entity.toCourseMemberList
-import domain.courseTaking.data.loadApplicationsByCourseId
-import domain.courseTaking.data.saveApplicationInDatabase
-import domain.courseTaking.entity.Application
-import domain.valueObject.CourseId
+import courseManagement.data.loadCourseById
+import courseManagement.domain.entity.toApplicationList
+import courseManagement.domain.entity.toCourseMemberList
+import courseTaking.data.loadApplicationsByCourseId
+import courseTaking.data.saveApplicationInDatabase
+import courseTaking.domain.entity.Application
+import valueObject.CourseId
+
 
 fun register(courseId: CourseId):Result<Unit>{
     val course = loadCourseById(courseId)
@@ -31,3 +32,4 @@ fun register(courseId: CourseId):Result<Unit>{
 
     return Result.success(Unit)
 }
+

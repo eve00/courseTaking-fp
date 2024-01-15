@@ -1,13 +1,12 @@
 package courseTaking.data
 
-import domain.courseTaking.entity.Application
-import domain.courseTaking.entity.ApplicationId
-import domain.courseTaking.entity.toApplication
-import domain.valueObject.Course
-import domain.valueObject.CourseId
-import domain.valueObject.Student
-import domain.valueObject.StudentId
-
+import courseTaking.domain.entity.Application
+import courseTaking.domain.entity.ApplicationId
+import courseTaking.domain.entity.toApplication
+import valueObject.Course
+import valueObject.CourseId
+import valueObject.Student
+import valueObject.StudentId
 
 data class ApplicationData(
     val applicationId: ApplicationId,

@@ -1,6 +1,4 @@
-package course.data
-
-import valueObject.common.Identifier
+package valueObject
 
 
 typealias CourseId = Identifier<Course, String>

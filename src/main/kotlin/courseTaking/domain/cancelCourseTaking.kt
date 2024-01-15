@@ -1,10 +1,10 @@
 package courseTaking.domain
 
-import domain.courseTaking.data.deleteApplicationfromDB
-import domain.courseTaking.data.loadApplicationById
-import domain.courseTaking.data.loadAppllicationsByStudentId
-import domain.courseTaking.entity.ApplicationId
-import domain.courseTaking.entity.toCourseTakingSchedule
+import courseTaking.data.deleteApplicationfromDB
+import courseTaking.data.loadApplicationById
+import courseTaking.data.loadAppllicationsByStudentId
+import courseTaking.domain.entity.ApplicationId
+import courseTaking.domain.entity.toCourseTakingSchedule
 
 
 suspend fun deleteMyApplication(applicationId: ApplicationId): Result<Unit> {

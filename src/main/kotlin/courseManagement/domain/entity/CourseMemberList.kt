@@ -1,7 +1,8 @@
 package courseManagement.domain.entity
 
-import domain.valueObject.Course
-import domain.valueObject.Student
+import courseManagement.domain.valueObject.Course
+import courseManagement.domain.valueObject.Student
+import valueObject.Student
 
 sealed class CourseMemberList {
     data class OfVacant(val value: VacantCourseMemberList): CourseMemberList()

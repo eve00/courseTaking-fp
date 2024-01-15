@@ -1,4 +1,4 @@
-package courseTaking.domain.valueObject
+package valueObject
 
 
 data class Identifier<EntityT, RawT>(val raw: RawT)

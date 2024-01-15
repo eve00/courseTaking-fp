@@ -1,31 +1,31 @@
 package courseManagement.domain.entity
 
-import domain.courseManagement.entity.CourseMemberList.*
-import domain.valueObject.Course
-import domain.valueObject.Student
+import course.data.Course
+import courseManagement.domain.valueObject.Student
+import valueObject.Student
 
 fun List<Student>.toCourseMemberList(course: Course): CourseMemberList {
     return when {
-        this.size < course.capacity -> OfVacant(
+        this.size < course.capacity -> CourseMemberList.OfVacant(
             VacantCourseMemberList(
                 course,
                 this
             )
         )
-        this.size == course.capacity -> OfFull(
+        this.size == course.capacity -> CourseMemberList.OfFull(
             FullCourseMemberList(
                 course,
                 this
             )
         )
-        this.size > course.capacity -> OfInvalid(
+        this.size > course.capacity -> CourseMemberList.OfInvalid(
             InvalidCourseMemberList(
                 course,
                 this
             )
         )
         else -> {
-            OfInvalid(InvalidCourseMemberList(Course(), listOf()))
+            CourseMemberList.OfInvalid(InvalidCourseMemberList(Course(), listOf()))
         }
     }
 }

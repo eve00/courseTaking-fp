@@ -1,6 +1,4 @@
-package courseManagement.domain.valueObject
-
-import courseTaking.domain.valueObject.Faculty
+package valueObject
 
 typealias StudentId = Identifier<Student, String>
 
@@ -11,7 +9,6 @@ data class Student(
     val faculty: Faculty = Faculty.ECONOMICS,
     val maxCredit: Int = 26
 )
-
 enum class Faculty {
     ENGINEERING, ECONOMICS
 }

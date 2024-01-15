@@ -1,10 +1,11 @@
 package courseTaking.domain.entity
 
-import domain.courseTaking.data.ApplicationData
-import domain.courseTaking.data.ApplicationState
-import domain.valueObject.Course
-import domain.valueObject.Student
-import domain.valueObject.common.Identifier
+import courseTaking.data.ApplicationData
+import courseTaking.data.ApplicationState
+import valueObject.Course
+import valueObject.Identifier
+import valueObject.Student
+
 
 typealias ApplicationId = Identifier<Application, String>
 
@@ -47,20 +48,20 @@ sealed class Application {
     }
     /*state transition*/
     fun toUnconfirmedApplication(): Application = when (this@Application) {
-        is OfUnprocessed -> toUnconfirmedApplication()
+        is OfUnprocessed -> toUnconfirmed()
         is OfUnconfirmed -> throw IllegalStateException()
         is OfConfirmed -> throw IllegalStateException()
         is OfInvalidated -> throw IllegalStateException()
     }
     fun toConfirmedApplication(): Application = when (this@Application) {
         is OfUnprocessed -> throw IllegalStateException()
-        is OfUnconfirmed -> toConfirmedApplication()
+        is OfUnconfirmed -> toConfirmed()
         is OfConfirmed -> throw IllegalStateException()
         is OfInvalidated -> throw IllegalStateException()
     }
     fun toInvalidatedApplication(): Application = when (this@Application) {
         is OfUnprocessed -> throw IllegalStateException()
-        is OfUnconfirmed -> toInvalidatedApplication()
+        is OfUnconfirmed -> toInvalidated()
         is OfConfirmed -> throw IllegalStateException()
         is OfInvalidated -> throw IllegalStateException()
     }

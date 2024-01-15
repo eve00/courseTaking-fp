@@ -1,17 +1,21 @@
 package webServer
 
 import courseManagement.domain.drawAndRegister
-import domain.courseTaking.*
-import domain.courseManagement.register
-import domain.courseTaking.entity.ApplicationId
-import domain.valueObject.CourseId
-import domain.valueObject.StudentId
+import courseManagement.domain.register
+import courseManagement.domain.getCoursesCanTake
+import courseTaking.domain.createApplication
+import courseTaking.domain.deleteMyApplication
+import courseTaking.domain.entity.ApplicationId
+import courseTaking.domain.getMyApplications
+import courseTaking.domain.getCourses
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import org.http4k.core.*
 import org.http4k.routing.bind
 import org.http4k.routing.routes
+import valueObject.CourseId
+import valueObject.StudentId
 
 /*
 * TODO:
@@ -116,7 +120,7 @@ class CourseTaking() : HttpHandler {
     private fun getCourses(request: Request): Response {
         val result = CoroutineScope(Dispatchers.IO).async {
             runCatching {
-                domain.courseManagement.getCourses()
+                getCourses()
             }
         }
 
@@ -131,7 +135,7 @@ class CourseTaking() : HttpHandler {
     private fun getCoursesCanTake(request: Request): Response {
         val result = CoroutineScope(Dispatchers.IO).async {
             runCatching {
-                domain.courseManagement.getCoursesCanTake()
+                getCoursesCanTake()
             }
         }
 
@@ -165,9 +169,9 @@ class CourseTaking() : HttpHandler {
     }
 
 
-    fun Request.extractApplicationId(): ApplicationId? = ApplicationId(String())
-    fun Request.extractStudentId(): StudentId? = StudentId(String())
-    fun Request.extractCourseId(): CourseId? = CourseId(String())
+    private fun Request.extractApplicationId(): ApplicationId? = ApplicationId(String())
+    private fun Request.extractStudentId(): StudentId? = StudentId(String())
+    private fun Request.extractCourseId(): CourseId? = CourseId(String())
 
 
 }

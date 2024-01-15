@@ -1,8 +1,7 @@
 package courseManagement.data
 
-import domain.valueObject.CourseId
-import domain.valueObject.Student
 import valueObject.CourseId
+import valueObject.Student
 
 fun loadCourseMembers(courseid: CourseId): Result<List<Student>> {
     return Result.success(
