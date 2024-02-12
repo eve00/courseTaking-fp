@@ -1,27 +1,29 @@
 package latestModel.useCase
 
-import latestModel.dataClass.RejectedApplication
+import latestModel.dataClass.Application
+import latestModel.dataClass.Course
 import latestModel.dataStore.ApplicationsDataStore
 import latestModel.dataStore.CourseMembersDataStore
-import latestModel.workflow.registerApplication
-import latestModel.workflow.selectApplication
+import latestModel.workflow.registerApplications
+import latestModel.workflow.selectApplications
 
 fun selectAndRegister(
     courseId: String,
-    capacity: Int,
     applicationsDataStore: ApplicationsDataStore,
     courseMembersDataStore: CourseMembersDataStore
 
-){
+) {
     /*IO*/
-    val notRegisteredApplication = applicationsDataStore.findByCourseId(courseId)
+    val applications = applicationsDataStore.findByCourseId(courseId)
+    val course = Course(courseId)
 
     /*workflow*/
-    val selectedApplication = selectApplication(notRegisteredApplication,capacity)
-    val registeredApplication = registerApplication(notRegisteredApplication)
+    val applicationsHasRejected =
+        selectApplications(applications.filterIsInstance<Application.OfCreated>(), course.capacity)
+    val registeredApplication = registerApplications(applications.filterIsInstance<Application.OfCreated>())
 
     /*IO*/
-    val rejectedApplication = selectedApplication.filter{it is RejectedApplication}
+    val rejectedApplication = applicationsHasRejected.filterIsInstance<Application.OfRejected>()
     applicationsDataStore.save(registeredApplication + rejectedApplication)
     val members = registeredApplication.map { it.student }
     courseMembersDataStore.save(members)

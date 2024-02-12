@@ -1,0 +1,66 @@
+@startuml
+
+!theme plain
+left to right direction
+
+class Application {
+   student: Student
+   course: Course
+   id: String
+}
+class ApplyKt {
+  + applyAsFirstServe(Student, Course, ApplicationsDataStore): Unit
+  + apply(Student, Course, ApplicationsDataStore): Unit
+   MAX_CREDITS: Int
+}
+class CancelApplicationKt {
+  + cancelApplication(Application, () -> Boolean): Object
+}
+class CancelApplicationKt {
+  + cancelApplication(String, ApplicationsDataStore): Unit
+}
+class Course {
+   credit: Int
+   id: String
+   capacity: Int
+}
+class CreateApplicationKt {
+  + createApplication(Student, Course, () -> Boolean): Object
+  + createApplicationAsFirstServe(Student, Course, () -> Boolean, () -> Boolean): Object
+}
+class RegisterApplicationsKt {
+  + registerApplications(List<OfNotRegistered>): List<OfRegistered>
+}
+class RegisterKt {
+  + register(String, ApplicationsDataStore, CourseMembersDataStore): Unit
+}
+class SelectAndRegisterKt {
+  + selectAndRegister(String, ApplicationsDataStore, CourseMembersDataStore): Unit
+}
+class SelectApplicationsKt {
+  + selectApplications(List<OfNotRegistered>, Int): List<Application>
+}
+class Student {
+   id: String
+}
+entity data  NotRegisteredApplication << data >> {
+   student: Student
+   course: Course
+   id: String
+}
+entity data  RegisteredApplication << data >> {
+   student: Student
+   course: Course
+   id: String
+}
+entity data  RejectedApplication << data >> {
+   student: Student
+   course: Course
+   id: String
+}
+
+CancelApplicationKt             -[#595959,dashed]->  data  NotRegisteredApplication : "«create»"
+CreateApplicationKt             -[#595959,dashed]->  data  NotRegisteredApplication : "«create»"
+RegisterApplicationsKt          -[#595959,dashed]->  data  RegisteredApplication    : "«create»"
+SelectApplicationsKt            -[#595959,dashed]->  data  RejectedApplication      : "«create»"
+@enduml

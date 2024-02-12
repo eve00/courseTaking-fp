@@ -1,17 +1,21 @@
 package latestModel.useCase
 
-import latestModel.dataClass.NotRegisteredApplication
+import latestModel.dataClass.Application
 import latestModel.dataStore.ApplicationsDataStore
-
+import latestModel.workflow.cancelApplication
 fun cancelApplication(
     applicationId: String,
     applicationsDataStore: ApplicationsDataStore
-){
+) {
     /*IO*/
     val application = applicationsDataStore.findById(applicationId)
 
-    if(application is NotRegisteredApplication){
-        /*IO*/
-        applicationsDataStore.delete(application.id)
-    }
+    val cancelableApplication = cancelApplication(application,
+        checkIsCancelable = {
+            application is Application.OfCreated
+        })
+
+    /*IO*/
+    applicationsDataStore.delete(application.id)
+
 }

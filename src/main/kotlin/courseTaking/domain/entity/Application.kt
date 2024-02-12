@@ -1,4 +1,5 @@
 package courseTaking.domain.entity
+/*
 
 import courseTaking.data.ApplicationData
 import courseTaking.data.ApplicationState
@@ -15,7 +16,9 @@ sealed class Application {
     data class OfUnconfirmed(val value: UnconfirmedApplication) : Application()
     data class OfConfirmed(val value: ConfirmedApplication) : Application()
 
-    /*「落選したこと」を永続化するため*/
+    */
+/*「落選したこと」を永続化するため*//*
+
     data class OfInvalidated(val value: InvalidatedApplication) : Application()
 
     val applicationId: ApplicationId
@@ -46,7 +49,9 @@ sealed class Application {
         is OfConfirmed -> this@Application.value
         is OfInvalidated -> this@Application.value
     }
-    /*state transition*/
+    */
+/*state transition*//*
+
     fun toUnconfirmedApplication(): Application = when (this@Application) {
         is OfUnprocessed -> toUnconfirmed()
         is OfUnconfirmed -> throw IllegalStateException()
@@ -66,7 +71,9 @@ sealed class Application {
         is OfInvalidated -> throw IllegalStateException()
     }
 
-    /*implement operation*/
+    */
+/*implement operation*//*
+
     private fun toUnconfirmed(): OfUnconfirmed = OfUnconfirmed(UnconfirmedApplication(this.applicationId, this.student, this.course))
     private fun toConfirmed(): OfConfirmed = OfConfirmed(ConfirmedApplication(this.applicationId, this.student, this.course))
     private fun toInvalidated(): OfInvalidated = OfInvalidated(InvalidatedApplication(this.applicationId, this.student, this.course))
@@ -123,3 +130,4 @@ fun ApplicationData.toApplication(): Application {
         )
     }
 }
+*/
